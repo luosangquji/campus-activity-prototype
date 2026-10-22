@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园活动报名与签到管理系统 - 原型设计</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .prototype-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* 顶部状态栏 */
+        .status-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 导航栏 */
+        .nav-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+
+        .nav-bar .back-btn {
+            position: absolute;
+            left: 16px;
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .nav-bar .title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        /* 页面视图 */
+        .page {
+            display: none;
+            padding-bottom: 70px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ===== 首页/活动列表页 ===== */
+        .banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 20px;
+            color: #fff;
+        }
+
+        .banner h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .banner p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            margin: -20px 20px 0;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .category-tabs {
+            display: flex;
+            padding: 16px 20px;
+            gap: 12px;
+            overflow-x: auto;
+        }
+
+        .category-tab {
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tab.active {
+            background: #667eea;
+            color: #fff;
+        }
+
+        .section-title {
+            padding: 0 20px;
+            margin: 16px 0 12px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title .more {
+            font-size: 13px;
+            color: #999;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .activity-list {
+            padding: 0 20px;
+        }
+
+        .activity-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .activity-card:active {
+            transform: scale(0.98);
+        }
+
+        .activity-cover {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .activity-cover.cover-2 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .activity-cover.cover-3 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .activity-cover.cover-4 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .activity-info {
+            padding: 12px 16px;
+        }
+
+        .activity-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .activity-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .activity-status {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .status-open {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .status-full {
+            background: #fff2e8;
+            color: #fa8c16;
+        }
+
+        .status-ended {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        /* ===== 活动详情页 ===== */
+        .detail-cover {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .detail-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            width: 65%;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .detail-section p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 底部报名按钮 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            padding: 12px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 1px solid #667eea;
+            color: #667eea;
+        }
+
+        /* ===== 我的活动页 ===== */
+        .my-tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .my-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .my-tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .my-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+
+        .my-activity-item {
+            display: flex;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .my-activity-cover {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .my-activity-info {
+            flex: 1;
+        }
+
+        .my-activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .my-activity-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .my-activity-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .my-activity-status.checked {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        /* ===== 签到页 ===== */
+        .checkin-page {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .checkin-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkin-icon svg {
+            width: 60px;
+            height: 60px;
+            stroke: #fff;
+        }
+
+        .checkin-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .checkin-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .qrcode-box {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 32px;
+            background: #fff;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #667eea;
+        }
+
+        /* ===== 底部导航栏 ===== */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 420px;
+            height: 60px;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            z-index: 100;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .tab-item.active {
+            color: #667eea;
+        }
+
+        .tab-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .tab-item span {
+            font-size: 11px;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 原型标注 */
+        .prototype-note {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ff4d4f;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-note">高保真原型 v1.0</div>
+
+    <div class="prototype-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span>19:27</span>
+            <span>5G</span>
+        </div>
+
+        <!-- ===== 页面1：活动列表（首页） ===== -->
+        <div class="page active" id="page-home">
+            <div class="banner">
+                <h1>校园活动平台</h1>
+                <p>发现精彩活动，丰富校园生活</p>
+            </div>
+
+            <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                搜索活动、社团、讲座...
+            </div>
+
+            <div class="category-tabs">
+                <div class="category-tab active">全部</div>
+                <div class="category-tab">学术讲座</div>
+                <div class="category-tab">文体活动</div>
+                <div class="category-tab">志愿实践</div>
+                <div class="category-tab">社团招新</div>
+            </div>
+
+            <div class="section-title">
+                热门活动
+                <span class="more" onclick="showToast('更多活动敬请期待')">查看更多 ></span>
+            </div>
+
+            <div class="activity-list">
+                <div class="activity-card" onclick="showDetail()">
+                    <div class="activity-cover">学术讲座</div>
+                    <div class="activity-info">
+                        <div class="activity-title">人工智能前沿技术讲座</div>
+                        <div class="activity-meta">
+                            <span>10月28日 19:00</span>
+                            <span class="activity-status status-open">报名中</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card" onclick="showDetail()">
+                    <div class="activity-cover cover-2">文体活动</div>
+                    <div class="activity-info">
+                        <div class="activity-title">校园十佳歌手大赛海选</div>
+                        <div class="activity-meta">
+                            <span>10月25日 14:00</span>
+                            <span class="activity-status status-open">报名中</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card" onclick="showDetail()">
+                    <div class="activity-cover cover-3">志愿实践</div>
+                    <div class="activity-info">
+                        <div class="activity-title">图书馆整理志愿者招募</div>
+                        <div class="activity-meta">
+                            <span>10月26日 09:00</span>
+                            <span class="activity-status status-full">名额已满</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card" onclick="showDetail()">
+                    <div class="activity-cover cover-4">社团招新</div>
+                    <div class="activity-info">
+                        <div class="activity-title">街舞社新生体验课</div>
+                        <div class="activity-meta">
+                            <span>10月30日 19:30</span>
+                            <span class="activity-status status-open">报名中</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 页面2：活动详情页 ===== -->
+        <div class="page" id="page-detail">
+            <div class="nav-bar">
+                <div class="back-btn" onclick="showHome()">‹</div>
+                <div class="title">活动详情</div>
+            </div>
+
+            <div class="detail-cover">学术讲座</div>
+
+            <div class="detail-content">
+                <div class="detail-title">人工智能前沿技术讲座：大模型与未来</div>
+
+                <div class="detail-meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-label">活动时间</div>
+                        <div class="meta-value">10月28日 19:00</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">活动地点</div>
+                        <div class="meta-value">学术报告厅A</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">主办单位</div>
+                        <div class="meta-value">计算机学院</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">活动时长</div>
+                        <div class="meta-value">120分钟</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-label">
+                        <span>报名进度</span>
+                        <span>65/100人</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>活动介绍</h3>
+                    <p>本次讲座邀请国内AI领域知名教授，分享大语言模型的最新进展与未来发展趋势，内容涵盖技术原理、应用场景和职业规划，适合所有对AI感兴趣的同学参加。</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>主讲嘉宾</h3>
+                    <p>王教授，博士生导师，某知名大学AI实验室主任，主持多项国家自然科学基金项目，在顶级会议发表论文50余篇。</p>
+                </div>
+            </div>
+
+            <div class="bottom-bar">
+                <button class="btn btn-outline" onclick="showToast('已收藏')">收藏</button>
+                <button class="btn btn-primary" onclick="registerActivity()">立即报名</button>
+            </div>
+        </div>
+
+        <!-- ===== 页面3：我的活动页 ===== -->
+        <div class="page" id="page-mine">
+            <div class="nav-bar">
+                <div class="title">我的活动</div>
+            </div>
+
+            <div class="my-tabs">
+                <div class="my-tab active">待参加</div>
+                <div class="my-tab">已结束</div>
+            </div>
+
+            <div class="my-activity-item" onclick="showCheckin()">
+                <div class="my-activity-cover">学术讲座</div>
+                <div class="my-activity-info">
+                    <div class="my-activity-title">人工智能前沿技术讲座</div>
+                    <div class="my-activity-time">10月28日 19:00 · 学术报告厅A</div>
+                    <span class="my-activity-status">待签到</span>
+                </div>
+            </div>
+
+            <div class="my-activity-item" onclick="showToast('活动详情')">
+                <div class="my-activity-cover" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">文体活动</div>
+                <div class="my-activity-info">
+                    <div class="my-activity-title">校园十佳歌手大赛海选</div>
+                    <div class="my-activity-time">10月25日 14:00 · 大学生活动中心</div>
+                    <span class="my-activity-status">待参加</span>
+                </div>
+            </div>
+
+            <div class="my-activity-item" onclick="showToast('活动详情')">
+                <div class="my-activity-cover" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">志愿实践</div>
+                <div class="my-activity-info">
+                    <div class="my-activity-title">图书馆整理志愿者服务</div>
+                    <div class="my-activity-time">10月20日 09:00 · 图书馆</div>
+                    <span class="my-activity-status checked">已签到</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 页面4：签到页 ===== -->
+        <div class="page" id="page-checkin">
+            <div class="nav-bar">
+                <div class="back-btn" onclick="showMine()">‹</div>
+                <div class="title">活动签到</div>
+            </div>
+
+            <div class="checkin-page">
+                <div class="checkin-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                </div>
+
+                <div class="checkin-title">活动签到</div>
+                <div class="checkin-desc">
+                    人工智能前沿技术讲座<br>
+                    10月28日 19:00 · 学术报告厅A
+                </div>
+
+                <div class="qrcode-box">
+                    QR
+                </div>
+
+                <button class="btn btn-primary" onclick="showToast('签到成功！')">扫码签到</button>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="showHome()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="showMine()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span>我的活动</span>
+            </div>
+            <div class="tab-item" onclick="showCheckin()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                <span>签到</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 页面切换
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新底部导航状态
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        }
+
+        function showHome() {
+            showPage('page-home');
+            document.querySelectorAll('.tab-item')[0].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showDetail() {
+            showPage('page-detail');
+            window.scrollTo(0, 0);
+        }
+
+        function showMine() {
+            showPage('page-mine');
+            document.querySelectorAll('.tab-item')[1].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showCheckin() {
+            showPage('page-checkin');
+            document.querySelectorAll('.tab-item')[2].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Toast提示
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 报名
+        function registerActivity() {
+            showToast('报名成功！');
+            setTimeout(() => {
+                showMine();
+            }, 1500);
+        }
+
+        // 分类切换
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // 我的活动tab切换
+        document.querySelectorAll('.my-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.my-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
